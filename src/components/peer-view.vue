@@ -142,7 +142,7 @@ export default {
           v.play().catch(e => {
             console.error(e);
             v.muted = true;
-            this.volumeMuted = true;
+            volumeMuted.value = true;
             v.play();
           });
         }

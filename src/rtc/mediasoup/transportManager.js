@@ -153,29 +153,31 @@ export default class TransportManager {
     if (!this.receiver) {
       await ensureCallOnce(() => this._createReceiver())();
     }
-    // paused: false maybe cause video play error,
-    const consumerInfo = await this.signaller.cmd(COMMOND.CREATE_CONSUMER, {
-      transportId: this.receiver.id,
-      producerId,
-      rtpCapabilities: this.device.rtpCapabilities,
-      paused: true
+    return this._awaitQueue.push(async () => {
+      // paused: false maybe cause video play error,
+      const consumerInfo = await this.signaller.cmd(COMMOND.CREATE_CONSUMER, {
+        transportId: this.receiver.id,
+        producerId,
+        rtpCapabilities: this.device.rtpCapabilities,
+        paused: true
+      });
+      const consumer = await this.receiver.consume({
+        id: consumerInfo.id,
+        kind: consumerInfo.kind,
+        rtpParameters: consumerInfo.rtpParameters,
+        producerId,
+        appData: {
+          peerId: userId,
+          kind: consumerInfo.kind
+        }
+      });
+      await this.signaller.cmd(COMMOND.RESUME_COMSUMER, {
+        id: consumer.id
+      });
+      this.addConsumer(userId, consumer);
+      console.log('receiveTrack, producerId:', producerId);
+      return consumer;
     });
-    const consumer = await this.receiver.consume({
-      id: consumerInfo.id,
-      kind: consumerInfo.kind,
-      rtpParameters: consumerInfo.rtpParameters,
-      producerId,
-      appData: {
-        peerId: userId,
-        kind: consumerInfo.kind
-      }
-    });
-    await this.signaller.cmd(COMMOND.RESUME_COMSUMER, {
-      id: consumer.id
-    });
-    this.addConsumer(userId, consumer);
-    console.log('receiveTrack, producerId:', producerId);
-    return consumer;
   }
 
   async replaceTrack(oldTrack, newTrack) {
