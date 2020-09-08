@@ -119,7 +119,7 @@ export default {
           }
           navigator.mediaDevices
             .getUserMedia({ video: true })
-            .then(s => s.getVidoeTracks()[0])
+            .then(s => s.getVideoTracks()[0])
             .then(track => {
               return this.client.replaceTrack('video', track);
             })

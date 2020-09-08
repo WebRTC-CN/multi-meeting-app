@@ -6,6 +6,8 @@ Web and Native APP for meeting
 yarn install
 ```
 
+### Modify server url in src/config/index.js
+
 ### Compiles and hot-reloads for development
 ```
 yarn serve
